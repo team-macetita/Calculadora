@@ -1,0 +1,26 @@
+{
+    {
+        "Operacion":"Suma"
+        "Valor1":[
+            "Operacion":"Coseno"
+            "Valor1":[
+                "Operacion":"Resta"
+                "Valor1":45
+                "Valor2":[
+                    "Operacion":"Multiplicacion"
+                    "Valor1":9
+                    "Valor2":5
+                ]
+            ]
+        ]
+        "Valor2":12
+    },
+    {
+        "Operacion":"Inverso"
+        "Valor1":[
+            "Operacion":"Raiz"
+            "Valor1":16.0
+            "Valor2":2
+        ]
+    }
+}

@@ -1,0 +1,92 @@
+/* 1. Package e importaciones */
+package Language;
+import java_cup.runtime.*;
+import java.util.ArrayList;
+import Tree.Node;
+import Components.ErrorS;
+
+/* 2. Codigo para el parser, variables y metodos */
+parser code
+{:
+    public Scanner s;
+    public Parser(Scanner s){
+        super(s);
+        this.s = s;
+    }
+    public ArrayList<Node> trees = new ArrayList<Node>();
+    public ArrayList<ErrorS> errors = new ArrayList<ErrorS>();
+
+    public void syntax_error(Symbol symbol){
+        errors.add(new ErrorS(symbol.left,symbol.right,symbol.value,Terminal.terminalNames[symbol.sym]));
+    }
+    public void unrecovered_syntax_error(Symbol symbol) throws java.lang.Exception{
+        errors.add(new ErrorS(symbol.left,symbol.right,symbol.value,Terminal.terminalNames[symbol.sym],true));
+    }
+:}
+
+/* 3. Terminales*/
+terminal String PR_Operacion, PR_Valor1, PR_Valor2;
+terminal String PR_Suma, PR_Resta, PR_Multiplicacion, PR_Division;
+terminal String PR_Potencia, PR_Raiz, PR_Inverso, PR_Seno, PR_Coseno, PR_Tangente, PR_Mod;
+terminal String TK_Num;
+terminal String TK_KeyO, TK_KeyC, TK_BrackO, TK_BrackC, TK_Comma, TK_Colon;
+
+/* 4. No Terminales*/
+non terminal String INICIO;
+non terminal String OPERATIONS;
+non terminal Node OPERATION;
+non terminal Node VALOR;
+
+/*5. Precedencia de Operadores*/
+
+/*6. Gramática*/
+
+start with INICIO;
+
+
+INICIO ::= TK_KeyO OPERATIONS TK_KeyC;
+
+OPERATIONS ::=
+    OPERATIONS error OPERATION |
+    OPERATIONS TK_Comma OPERATION:a {:trees.add(a);:} |
+    OPERATION:a {:trees.add(a);:};
+
+OPERATION ::=
+    TK_KeyO PR_Operacion TK_Colon PR_Suma           PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_KeyC {:RESULT = new Node("Suma",a.value + b.value);RESULT.left = a;RESULT.right = b;:} |
+    TK_KeyO PR_Operacion TK_Colon PR_Resta          PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_KeyC {:RESULT = new Node("Resta",a.value - b.value);RESULT.left = a;RESULT.right = b;:} |
+    TK_KeyO PR_Operacion TK_Colon PR_Multiplicacion PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_KeyC {:RESULT = new Node("Multiplicacion",a.value * b.value);RESULT.left = a;RESULT.right = b;:} |
+    TK_KeyO PR_Operacion TK_Colon PR_Division       PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_KeyC {:RESULT = new Node("Division",a.value / b.value);RESULT.left = a;RESULT.right = b;:} |
+    TK_KeyO PR_Operacion TK_Colon PR_Potencia       PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_KeyC {:RESULT = new Node("Potencia",Math.pow(a.value,b.value));RESULT.left = a;RESULT.right = b;:} |
+    TK_KeyO PR_Operacion TK_Colon PR_Raiz           PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_KeyC {:RESULT = new Node("Raiz",Math.pow(a.value,1 / b.value));RESULT.left = a;RESULT.right = b;:} |
+    TK_KeyO PR_Operacion TK_Colon PR_Inverso        PR_Valor1 TK_Colon VALOR:a TK_KeyC {:RESULT = new Node("Inverso",1 / a.value);RESULT.left = a;:} |
+    TK_KeyO PR_Operacion TK_Colon PR_Seno           PR_Valor1 TK_Colon VALOR:a TK_KeyC {:RESULT = new Node("Seno",Math.sin(a.value * Math.PI / 180));RESULT.left = a;:} |
+    TK_KeyO PR_Operacion TK_Colon PR_Coseno         PR_Valor1 TK_Colon VALOR:a TK_KeyC {:RESULT = new Node("Coseno",Math.cos(a.value * Math.PI / 180));RESULT.left = a;:} |
+    TK_KeyO PR_Operacion TK_Colon PR_Tangente       PR_Valor1 TK_Colon VALOR:a TK_KeyC {:RESULT = new Node("Tangente",Math.tan(a.value * Math.PI / 180));RESULT.left = a;:} |
+    TK_KeyO PR_Operacion TK_Colon PR_Mod            PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_KeyC {:RESULT = new Node("Mod",a.value % b.value);RESULT.left = a;RESULT.right = b;:} ;
+
+VALOR ::=
+    TK_BrackO PR_Operacion TK_Colon PR_Suma           PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_BrackC {:RESULT = new Node("Suma",a.value + b.value);RESULT.left = a;RESULT.right = b;:} |
+    TK_BrackO PR_Operacion TK_Colon PR_Resta          PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_BrackC {:RESULT = new Node("Resta",a.value - b.value);RESULT.left = a;RESULT.right = b;:} |
+    TK_BrackO PR_Operacion TK_Colon PR_Multiplicacion PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_BrackC {:RESULT = new Node("Multiplicacion",a.value * b.value);RESULT.left = a;RESULT.right = b;:} |
+    TK_BrackO PR_Operacion TK_Colon PR_Division       PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_BrackC {:RESULT = new Node("Division",a.value / b.value);RESULT.left = a;RESULT.right = b;:} |
+    TK_BrackO PR_Operacion TK_Colon PR_Potencia       PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_BrackC {:RESULT = new Node("Potencia",Math.pow(a.value,b.value));RESULT.left = a;RESULT.right = b;:} |
+    TK_BrackO PR_Operacion TK_Colon PR_Raiz           PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_BrackC {:RESULT = new Node("Raiz",Math.pow(a.value,1 / b.value));RESULT.left = a;RESULT.right = b;:} |
+    TK_BrackO PR_Operacion TK_Colon PR_Inverso        PR_Valor1 TK_Colon VALOR:a TK_BrackC {:RESULT = new Node("Inverso",1 / a.value);RESULT.left = a;:} |
+    TK_BrackO PR_Operacion TK_Colon PR_Seno           PR_Valor1 TK_Colon VALOR:a TK_BrackC {:RESULT = new Node("Seno",Math.sin(a.value * Math.PI / 180));RESULT.left = a;:} |
+    TK_BrackO PR_Operacion TK_Colon PR_Coseno         PR_Valor1 TK_Colon VALOR:a TK_BrackC {:RESULT = new Node("Coseno",Math.cos(a.value * Math.PI / 180));RESULT.left = a;:} |
+    TK_BrackO PR_Operacion TK_Colon PR_Tangente       PR_Valor1 TK_Colon VALOR:a TK_BrackC {:RESULT = new Node("Tangente",Math.tan(a.value * Math.PI / 180));RESULT.left = a;:} |
+    TK_BrackO PR_Operacion TK_Colon PR_Mod            PR_Valor1 TK_Colon VALOR:a PR_Valor2 TK_Colon VALOR:b TK_BrackC {:RESULT = new Node("Mod",a.value % b.value);RESULT.left = a;RESULT.right = b;:} |
+    TK_Num:a {:RESULT = new Node(Double.parseDouble(a));:} ;
+
+/*
+{
+    operacion: suma | resta .....
+    valor1 : valor
+    valor2 : valor
+},
+
+5,
+3,
+
+
+*/
